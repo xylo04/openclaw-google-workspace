@@ -37,6 +37,7 @@
   },
   "files": [
     "src",
+    "dist",
     "skills",
     "docs",
     "examples",
@@ -54,6 +55,8 @@
     "typescript": "^5.7.0"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   }
 }
