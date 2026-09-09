@@ -7,7 +7,7 @@
 
 import { google } from "googleapis";
 import type { OAuth2Client, Credentials } from "google-auth-library";
-import { readFile, writeFile, rename, chmod, access } from "node:fs/promises";
+import { readFile, open, rename, access } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { randomBytes } from "node:crypto";
@@ -141,11 +141,11 @@ async function writeTokens(
 ): Promise<void> {
   const absPath = resolve(tokenPath);
   const tmpPath = `${absPath}.${randomBytes(4).toString("hex")}.tmp`;
-  await writeFile(tmpPath, JSON.stringify(tokens, null, 2), "utf-8");
+  const tmpFile = await open(tmpPath, "wx", 0o600);
   try {
-    await chmod(tmpPath, 0o600);
-  } catch {
-    // chmod may fail on Windows — non-fatal
+    await tmpFile.writeFile(JSON.stringify(tokens, null, 2), "utf-8");
+  } finally {
+    await tmpFile.close();
   }
   await rename(tmpPath, absPath);
 }
